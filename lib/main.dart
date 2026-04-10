@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard_scherm.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,7 +37,7 @@ class _AppShellState extends State<AppShell> {
   static const List<Widget> _schermen = <Widget>[
     Center(child: Text('Hier komt later: Zoeken')),
     Center(child: Text('Hier komt later: Verhuren')),
-    Center(child: Text('Hier komt later: Dashboard')),
+    DashboardScherm(),
     Center(child: Text('Hier komt later: Profiel')),
   ];
 
