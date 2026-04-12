@@ -1,9 +1,11 @@
+enum Categorie { keuken, tuin, gereedschap, schoonmaak }
+
 class Apparaat {
   final String id;
   final String naam;
   final String eigenaar;
   final double prijsPerDag;
-  final String categorie;
+  final Categorie categorie;
   final double afstandKm;
 
   Apparaat({
@@ -16,15 +18,14 @@ class Apparaat {
   });
 }
 
-// Dit is onze tijdelijke hardcoded array.
-// Deze gebruiken we totdat we Firebase koppelen.
+// Dummy data om te testen. Later vervangen door echte data uit een database of API.
 final List<Apparaat> dummyApparaten = [
   Apparaat(
     id: '1',
     naam: 'Grasmaaier',
     eigenaar: 'John',
     prijsPerDag: 12.00,
-    categorie: 'Tuin',
+    categorie: Categorie.tuin,
     afstandKm: 0.5,
   ),
   Apparaat(
@@ -32,7 +33,7 @@ final List<Apparaat> dummyApparaten = [
     naam: 'Ladder',
     eigenaar: 'Henk',
     prijsPerDag: 10.00,
-    categorie: 'Gereedschap',
+    categorie: Categorie.gereedschap,
     afstandKm: 1.5,
   ),
   Apparaat(
@@ -40,7 +41,7 @@ final List<Apparaat> dummyApparaten = [
     naam: 'Stofzuiger',
     eigenaar: 'Lisa',
     prijsPerDag: 8.00,
-    categorie: 'Schoonmaak',
+    categorie: Categorie.schoonmaak,
     afstandKm: 0.8,
   ),
   Apparaat(
@@ -48,7 +49,7 @@ final List<Apparaat> dummyApparaten = [
     naam: 'Keukenmixer',
     eigenaar: 'Tom',
     prijsPerDag: 5.00,
-    categorie: 'Keuken',
+    categorie: Categorie.keuken,
     afstandKm: 2.1,
   ),
 ];

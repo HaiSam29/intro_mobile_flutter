@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intro_mobile_flutter/zoeken.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +35,7 @@ class _AppShellState extends State<AppShell> {
 
   // Een array met tijdelijke schermen. Later vervangen we deze teksten door je echte componenten.
   static const List<Widget> _schermen = <Widget>[
-    Center(child: Text('Hier komt later: Zoeken')),
+    ZoekScherm(),
     Center(child: Text('Hier komt later: Verhuren')),
     Center(child: Text('Hier komt later: Dashboard')),
     Center(child: Text('Hier komt later: Profiel')),
