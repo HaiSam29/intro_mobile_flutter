@@ -488,12 +488,24 @@ class DashboardScherm extends StatelessWidget {
 
                         const SizedBox(height: 12),
 
-                        const Text(
-                          'Mijn toestellen',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Mijn toestellen',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                // Voeg toestel toe actie
+                              },
+                              icon: const Icon(Icons.add),
+                              label: const Text('Voeg toestel toe'),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 12),
