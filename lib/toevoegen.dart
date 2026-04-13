@@ -1,8 +1,9 @@
 //import 'dart:io'; // Belangrijk: nodig voor het 'File' object
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // De nieuwe library
 import 'package:intro_mobile_flutter/apparaat.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intro_mobile_flutter/services/database_service.dart';
 
 class ToevoegenScherm extends StatefulWidget {
   const ToevoegenScherm({super.key});
@@ -36,7 +37,7 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
     }
   }
 
-  void _opslaan() {
+  void _opslaan() async {
     if (_geselecteerdeFoto == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Kies a.u.b eert een foto!")),
@@ -63,6 +64,26 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
         categorie: _geselecteerdeCategorie!,
         locatie: nieuweLocatie,
       );
+
+      try {
+        await DatabaseService().voegApparaatToe(nieuwApparaat);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Apparaat succesvol opgeslagen in de cloud!"),
+          ),
+        );
+
+        _formKey.currentState!.reset();
+        setState(() {
+          _geselecteerdeFoto = null;
+        });
+        
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Er ging iets mis: $e')));
+      }
     }
   }
 

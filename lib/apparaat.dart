@@ -20,6 +20,32 @@ class Apparaat {
     required this.categorie,
     required this.locatie,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'naam': naam,
+      'beschrijving': beschrijving,
+      'imageUrl': imageUrl,
+      'eigenaar': eigenaar,
+      'prijsPerDag': prijsPerDag,
+      'categorie': categorie.name, // Slaat bijv. 'tuin' op ipv Categorie.tuin
+      'locatie': locatie.toMap(), // Gebruikt de toMap van Locatie
+    };
+  }
+
+  factory Apparaat.fromFirestore(String id, Map<String, dynamic> data) {
+    return Apparaat(
+      id: id,
+      naam: data['naam'] ?? '',
+      beschrijving: data['beschrijving'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      eigenaar: data['eigenaar'] ?? '',
+      prijsPerDag: (data['prijsPerDag'] ?? 0).toDouble(),
+      // Vertaal de string uit de DB terug naar de Enum:
+      categorie: Categorie.values.byName(data['categorie']),
+      locatie: Locatie.fromMap(data['locatie']),
+    );
+  }
 }
 
 class Locatie {
@@ -32,48 +58,16 @@ class Locatie {
     required this.longitude,
     required this.adres,
   });
-}
 
-// Dummy data om te testen. Later vervangen door echte data uit een database of API.
-final List<Apparaat> dummyApparaten = [
-  Apparaat(
-    id: '1',
-    naam: 'Grasmaaier',
-    eigenaar: 'John',
-    beschrijving: "beschrijving",
-    prijsPerDag: 12.00,
-    categorie: Categorie.tuin,
-    locatie: Locatie(latitude: 0, longitude: 0, adres: "adres"),
-    imageUrl: "",
-  ),
-  Apparaat(
-    id: '2',
-    naam: 'Ladder',
-    eigenaar: 'Henk',
-    beschrijving: "beschrijving",
-    prijsPerDag: 10.00,
-    categorie: Categorie.gereedschap,
-    locatie: Locatie(latitude: 0, longitude: 0, adres: "adres"),
-    imageUrl: "",
-  ),
-  Apparaat(
-    id: '3',
-    naam: 'Stofzuiger',
-    eigenaar: 'Lisa',
-    beschrijving: "beschrijving",
-    prijsPerDag: 8.00,
-    categorie: Categorie.schoonmaak,
-    locatie: Locatie(latitude: 0, longitude: 0, adres: "adres"),
-    imageUrl: "",
-  ),
-  Apparaat(
-    id: '4',
-    naam: 'Keukenmixer',
-    eigenaar: 'Tom',
-    beschrijving: "beschrijving",
-    prijsPerDag: 5.00,
-    categorie: Categorie.keuken,
-    locatie: Locatie(latitude: 0, longitude: 0, adres: "adres"),
-    imageUrl: "",
-  ),
-];
+  Map<String, dynamic> toMap() {
+    return {'latitude': latitude, 'longitude': longitude, 'adres': adres};
+  }
+
+  factory Locatie.fromMap(Map<String, dynamic> map) {
+    return Locatie(
+      latitude: map['latitude'] ?? 0.0,
+      longitude: map['longitude'] ?? 0.0,
+      adres: map['adres'] ?? '',
+    );
+  }
+}
