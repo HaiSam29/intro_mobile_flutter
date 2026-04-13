@@ -4,6 +4,8 @@ import 'package:intro_mobile_flutter/toevoegen.dart';
 import 'package:intro_mobile_flutter/zoeken.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'login_scherm.dart';
+import 'profiel_scherm.dart';
 
 void main() async {
   // 1. Zorg dat de Flutter engine klaar is voor native communicatie
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.black,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const AppShell(),
+      home: const LoginScherm(),
     );
   }
 }
@@ -48,7 +50,7 @@ class _AppShellState extends State<AppShell> {
     ZoekScherm(),
     ToevoegenScherm(),
     DashboardScherm(),
-    Center(child: Text('Hier komt later: Profiel')),
+    ProfielScherm(),
   ];
 
   // Functie om de state te updaten als je op een knop klikt
