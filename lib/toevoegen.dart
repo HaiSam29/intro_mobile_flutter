@@ -67,7 +67,7 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
 
       try {
         await DatabaseService().voegApparaatToe(nieuwApparaat);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Apparaat succesvol opgeslagen in de cloud!"),
@@ -78,7 +78,7 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
         setState(() {
           _geselecteerdeFoto = null;
         });
-        
+
       } catch (e) {
         ScaffoldMessenger.of(
           context,
