@@ -1,5 +1,42 @@
 import 'package:flutter/material.dart';
-import 'apparaat.dart';
+
+class _DashboardApparaat {
+  final String naam;
+  final String eigenaar;
+  final String afbeelding;
+
+  const _DashboardApparaat({
+    required this.naam,
+    required this.eigenaar,
+    required this.afbeelding,
+  });
+}
+
+const List<_DashboardApparaat> dummyApparaten = [
+  _DashboardApparaat(
+    naam: 'Grasmaaier',
+    eigenaar: 'John',
+    afbeelding:
+        'https://tuinwebshop.be/wp-content/uploads/2020/03/60-volt-accu-grasmaaier-gd60lm51sp.jpg',
+  ),
+  _DashboardApparaat(
+    naam: 'Ladder',
+    eigenaar: 'Henk',
+    afbeelding:
+        'https://www.badgerladder.com/wp-content/uploads/magictoolbox_cache/ad391aebc1f9913654f3f7c70f89e9ae/5/9/590/original/1160400600/type-1aa-extra-heavy-duty-fiberglass-double-step-ladder-375-pound-capacity-1.jpg',
+  ),
+  _DashboardApparaat(
+    naam: 'Stofzuiger',
+    eigenaar: 'Lisa',
+    afbeelding: 'https://static.gamma.be/dam/574691/123',
+  ),
+  _DashboardApparaat(
+    naam: 'Keukenmixer',
+    eigenaar: 'Tom',
+    afbeelding:
+        'https://www.like2cook.nl/media/catalog/product/cache/3243bb42d756c8fd12c0aea11994f95b/5/k/5ksm175pser_r_2.webp',
+  ),
+];
 
 class DashboardScherm extends StatelessWidget {
   const DashboardScherm({super.key});
@@ -340,7 +377,9 @@ class DashboardScherm extends StatelessWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    const Text('Aanvraag: 09/04/2026'),
+                                    const Text(
+                                      'Aanvraag: 09/04/2026 - 17/04/2026',
+                                    ),
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
@@ -404,7 +443,9 @@ class DashboardScherm extends StatelessWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    const Text('Aanvraag: 10/04/2026'),
+                                    const Text(
+                                      'Aanvraag: 10/04/2026 - 28/04/2026',
+                                    ),
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [

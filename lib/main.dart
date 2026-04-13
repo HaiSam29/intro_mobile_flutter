@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dashboard_scherm.dart';
+import 'package:intro_mobile_flutter/toevoegen.dart';
+import 'package:intro_mobile_flutter/zoeken.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  // 1. Zorg dat de Flutter engine klaar is voor native communicatie
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. Start de verbinding met Firebase project: flutterproject-11d18
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const MyApp());
 }
 
@@ -35,8 +45,8 @@ class _AppShellState extends State<AppShell> {
 
   // Een array met tijdelijke schermen. Later vervangen we deze teksten door je echte componenten.
   static const List<Widget> _schermen = <Widget>[
-    Center(child: Text('Hier komt later: Zoeken')),
-    Center(child: Text('Hier komt later: Verhuren')),
+    ZoekScherm(),
+    ToevoegenScherm(),
     DashboardScherm(),
     Center(child: Text('Hier komt later: Profiel')),
   ];
@@ -64,8 +74,11 @@ class _AppShellState extends State<AppShell> {
         onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'ZOEKEN'),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'VERHUREN'),
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'VOEG TOE'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'DASHBOARD',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'PROFIEL'),
         ],
       ),

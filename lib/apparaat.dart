@@ -1,60 +1,73 @@
+enum Categorie { keuken, tuin, gereedschap, schoonmaak }
+
 class Apparaat {
   final String id;
   final String naam;
+  final String imageUrl;
   final String eigenaar;
+  final String beschrijving;
   final double prijsPerDag;
-  final String categorie;
-  final double afstandKm;
-  final String afbeelding;
+  final Categorie categorie;
+  final Locatie locatie;
 
   Apparaat({
     required this.id,
     required this.naam,
+    required this.imageUrl,
     required this.eigenaar,
+    required this.beschrijving,
     required this.prijsPerDag,
     required this.categorie,
-    required this.afstandKm,
-    required this.afbeelding,
+    required this.locatie,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'naam': naam,
+      'beschrijving': beschrijving,
+      'imageUrl': imageUrl,
+      'eigenaar': eigenaar,
+      'prijsPerDag': prijsPerDag,
+      'categorie': categorie.name, // Slaat bijv. 'tuin' op ipv Categorie.tuin
+      'locatie': locatie.toMap(), // Gebruikt de toMap van Locatie
+    };
+  }
+
+  factory Apparaat.fromFirestore(String id, Map<String, dynamic> data) {
+    return Apparaat(
+      id: id,
+      naam: data['naam'] ?? '',
+      beschrijving: data['beschrijving'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      eigenaar: data['eigenaar'] ?? '',
+      prijsPerDag: (data['prijsPerDag'] ?? 0).toDouble(),
+      // Vertaal de string uit de DB terug naar de Enum:
+      categorie: Categorie.values.byName(data['categorie']),
+      locatie: Locatie.fromMap(data['locatie']),
+    );
+  }
 }
 
-// Dit is onze tijdelijke hardcoded array.
-// Deze gebruiken we totdat we Firebase koppelen.
-final List<Apparaat> dummyApparaten = [
-  Apparaat(
-    id: '1',
-    naam: 'Grasmaaier',
-    eigenaar: 'John',
-    prijsPerDag: 12.00,
-    categorie: 'Tuin',
-    afstandKm: 0.5,
-    afbeelding: 'https://tuinwebshop.be/wp-content/uploads/2020/03/60-volt-accu-grasmaaier-gd60lm51sp.jpg',
-  ),
-  Apparaat(
-    id: '2',
-    naam: 'Ladder',
-    eigenaar: 'Henk',
-    prijsPerDag: 10.00,
-    categorie: 'Gereedschap',
-    afstandKm: 1.5,
-    afbeelding: 'https://www.badgerladder.com/wp-content/uploads/magictoolbox_cache/ad391aebc1f9913654f3f7c70f89e9ae/5/9/590/original/1160400600/type-1aa-extra-heavy-duty-fiberglass-double-step-ladder-375-pound-capacity-1.jpg',
-  ),
-  Apparaat(
-    id: '3',
-    naam: 'Stofzuiger',
-    eigenaar: 'Lisa',
-    prijsPerDag: 8.00,
-    categorie: 'Schoonmaak',
-    afstandKm: 0.8,
-    afbeelding: 'https://static.gamma.be/dam/574691/123',
-  ),
-  Apparaat(
-    id: '4',
-    naam: 'Keukenmixer',
-    eigenaar: 'Tom',
-    prijsPerDag: 5.00,
-    categorie: 'Keuken',
-    afstandKm: 2.1,
-    afbeelding: 'https://www.like2cook.nl/media/catalog/product/cache/3243bb42d756c8fd12c0aea11994f95b/5/k/5ksm175pser_r_2.webp',
-  ),
-];
+class Locatie {
+  final double latitude;
+  final double longitude;
+  final String adres;
+
+  Locatie({
+    required this.latitude,
+    required this.longitude,
+    required this.adres,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {'latitude': latitude, 'longitude': longitude, 'adres': adres};
+  }
+
+  factory Locatie.fromMap(Map<String, dynamic> map) {
+    return Locatie(
+      latitude: map['latitude'] ?? 0.0,
+      longitude: map['longitude'] ?? 0.0,
+      adres: map['adres'] ?? '',
+    );
+  }
+}
