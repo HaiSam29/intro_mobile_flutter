@@ -93,11 +93,53 @@ class _ZoekSchermState extends State<ZoekScherm> {
                     final apparaat = gefilterdeApparaten[index];
 
                     return Card(
-                      margin: const EdgeInsets.all(8.0),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       // Padding toegevoegd in de Card zodat de tekst niet tegen de rand plakt
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text('${apparaat.naam} - ${apparaat.eigenaar}'),
+                        padding: const EdgeInsets.all(15.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                'https://picsum.photos/100',
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+
+                            const SizedBox(width: 15),
+
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${apparaat.naam} (${apparaat.eigenaar})',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text('1.5 km'),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '€${apparaat.prijsPerDag} / dag',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
