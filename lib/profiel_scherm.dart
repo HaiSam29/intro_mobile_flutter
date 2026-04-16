@@ -9,8 +9,6 @@ class ProfielScherm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Profielfoto links  en naam en email rechts onderaan een uilogknop
-    // Zet alles center en, goed over de lengte van het scherm
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -53,10 +51,7 @@ class ProfielScherm extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       FirebaseAuth.instance.currentUser!.email ?? "",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -101,9 +96,7 @@ class ProfielScherm extends StatelessWidget {
                 if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScherm(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const LoginScherm()),
                 );
               },
               child: const Text("Uitloggen"),
