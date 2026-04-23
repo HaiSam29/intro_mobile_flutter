@@ -16,7 +16,7 @@ class ProfielScherm extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
 
-          // Titel van het scherm en gebruikersinformatie (avatar, naam, email)
+          // Titel van het scherm
           const Center(
             child: Text(
               'Mijn Profiel',
