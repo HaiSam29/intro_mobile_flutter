@@ -78,9 +78,12 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
 
         await DatabaseService().voegApparaatToe(nieuwApparaat);
 
+<<<<<<< HEAD
         if (!mounted)
           return; // Check of het scherm nog steeds zichtbaar is voordat we een SnackBar tonen
 
+=======
+>>>>>>> c1c0e3ac0504a734f2191b59305a0a85992def4b
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Apparaat succesvol opgeslagen!"),

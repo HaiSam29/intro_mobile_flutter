@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:device_preview/device_preview.dart';
+import 'dashboard_scherm.dart';
 import 'package:intro_mobile_flutter/toevoegen.dart';
 import 'package:intro_mobile_flutter/zoeken.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'login_scherm.dart';
+import 'profiel_scherm.dart';
 
 void main() async {
-  // 1. Zorg dat de Flutter engine klaar is voor native communicatie
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // 2. Start de verbinding met Firebase project: flutterproject-11d18
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  runApp(
+    DevicePreview(
+      enabled: true,
+      builder: (context) => const MyApp(),
+    ),
   );
-  
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -23,12 +28,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
       title: 'BuurShare',
       theme: ThemeData(
         primaryColor: Colors.black,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const AppShell(),
+      home: const LoginScherm(),
     );
   }
 }
@@ -48,8 +56,8 @@ class _AppShellState extends State<AppShell> {
   static const List<Widget> _schermen = <Widget>[
     ZoekScherm(),
     ToevoegenScherm(),
-    Center(child: Text('Hier komt later: Dashboard')),
-    Center(child: Text('Hier komt later: Profiel')),
+    DashboardScherm(),
+    ProfielScherm(),
   ];
 
   // Functie om de state te updaten als je op een knop klikt
@@ -76,7 +84,10 @@ class _AppShellState extends State<AppShell> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'ZOEKEN'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'VOEG TOE'),
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'DASHBOARD'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'DASHBOARD',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'PROFIEL'),
         ],
       ),
