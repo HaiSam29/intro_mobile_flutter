@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intro_mobile_flutter/services/database_service.dart';
 import 'main.dart';
 
 class SignupScherm extends StatefulWidget {
@@ -34,7 +35,20 @@ class _SignupSchermState extends State<SignupScherm> {
             email: _emailController.text.trim(),
             password: _wachtwoordController.text,
           );
-      await credential.user?.updateDisplayName(_naamController.text.trim());
+      final user = credential.user;
+      if (user == null) {
+        throw Exception('Gebruiker kon niet aangemaakt worden.');
+      }
+
+      await user.updateDisplayName(_naamController.text.trim());
+
+      // Maak een gebruikersprofiel aan in Firestore, toegevoegd door vriend 
+      await DatabaseService().maakGebruikerProfielAan(
+        uid: user.uid,
+        naam: _naamController.text.trim(),
+        email: _emailController.text.trim(),
+        adres: "Teststraat 123, Antwerpen", // Hier zou je een veld kunnen toevoegen in het formulier om dit in te vullen
+      );
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
