@@ -18,17 +18,7 @@ class _ZoekSchermState extends State<ZoekScherm> {
 
   @override
   Widget build(BuildContext context) {
-    // // 1. Jouw bestaande filter logica
-    // final gefilterdeApparaten = dummyApparaten.where((apparaat) {
-    //   final naamMatch = apparaat.naam.toLowerCase().contains(
-    //     _zoekTerm.toLowerCase(),
-    //   );
-    //   final categorieMatch =
-    //       _geselecteerdeCategorie == null ||
-    //       apparaat.categorie == _geselecteerdeCategorie;
-    //   return naamMatch && categorieMatch;
-    // }).toList();
-
+    
     // 2. Column om de dropdown en de lijst onder elkaar te zetten
     return Column(
       children: [

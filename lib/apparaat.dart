@@ -28,8 +28,8 @@ class Apparaat {
       'imageUrl': imageUrl,
       'eigenaar': eigenaar,
       'prijsPerDag': prijsPerDag,
-      'categorie': categorie.name, // Slaat bijv. 'tuin' op ipv Categorie.tuin
-      'locatie': locatie.toMap(), // Gebruikt de toMap van Locatie
+      'categorie': categorie.name, // we slaan de naam van de Enum op in de DB
+      'locatie': locatie.toMap(),
     };
   }
 
