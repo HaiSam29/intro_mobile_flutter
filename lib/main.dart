@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:device_preview/device_preview.dart';
 import 'dashboard_scherm.dart';
 import 'package:intro_mobile_flutter/toevoegen.dart';
 import 'package:intro_mobile_flutter/zoeken.dart';
@@ -14,7 +15,12 @@ void main() async {
   // 2. Start de verbinding met Firebase project: flutterproject-11d18
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MyApp());
+  runApp(
+    DevicePreview(
+      enabled: true,
+      builder: (context) => const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +30,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
       title: 'BuurShare',
       theme: ThemeData(
         primaryColor: Colors.black,

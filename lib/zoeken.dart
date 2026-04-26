@@ -141,7 +141,7 @@ class _ZoekSchermState extends State<ZoekScherm> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${apparaat.naam} (${apparaat.eigenaar})',
+                                  '${apparaat.naam} (${apparaat.eigenaarNaam})',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
