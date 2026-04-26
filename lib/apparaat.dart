@@ -5,6 +5,7 @@ class Apparaat {
   final String naam;
   final String imageUrl;
   final String eigenaar;
+  final String eigenaarNaam;
   final String beschrijving;
   final double prijsPerDag;
   final Categorie categorie;
@@ -15,6 +16,7 @@ class Apparaat {
     required this.naam,
     required this.imageUrl,
     required this.eigenaar,
+    required this.eigenaarNaam,
     required this.beschrijving,
     required this.prijsPerDag,
     required this.categorie,
@@ -27,6 +29,7 @@ class Apparaat {
       'beschrijving': beschrijving,
       'imageUrl': imageUrl,
       'eigenaar': eigenaar,
+      'eigenaarNaam': eigenaarNaam,
       'prijsPerDag': prijsPerDag,
       'categorie': categorie.name, // Slaat bijv. 'tuin' op ipv Categorie.tuin
       'locatie': locatie.toMap(), // Gebruikt de toMap van Locatie
@@ -40,6 +43,7 @@ class Apparaat {
       beschrijving: data['beschrijving'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       eigenaar: data['eigenaar'] ?? '',
+      eigenaarNaam: data['eigenaarNaam'] ?? 'Onbekend',
       prijsPerDag: (data['prijsPerDag'] ?? 0).toDouble(),
       // Vertaal de string uit de DB terug naar de Enum:
       categorie: Categorie.values.byName(data['categorie']),

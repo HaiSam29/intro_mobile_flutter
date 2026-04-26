@@ -1,9 +1,11 @@
 //import 'dart:io'; // Belangrijk: nodig voor het 'File' object
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // De nieuwe library
 import 'package:intro_mobile_flutter/apparaat.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ToevoegenScherm extends StatefulWidget {
   const ToevoegenScherm({super.key});
@@ -54,18 +56,35 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
         adres: _adres,
       );
 
-      final nieuwApparaat = Apparaat(
-        id: '123',
-        naam: _naam,
-        beschrijving: _beschrijving,
-        imageUrl: _geselecteerdeFoto!.path,
-        eigenaar: 'Anoniem',
-        prijsPerDag: _prijs,
-        categorie: _geselecteerdeCategorie!,
-        locatie: nieuweLocatie,
-      );
-
       try {
+        // 1. Upload de foto naar Firebase Storage
+        // Omdat we nu een XFile hebben, gebruiken we readAsBytes() in plaats van File(...).readAsBytes()
+        // 2. Maak een unieke bestandsnaam (bijv. op basis van timestamp)
+        // 3. Upload de bytes naar Firebase Storage
+        // 4. Haal de download URL op van de geüploade foto
+        final bytes = await _geselecteerdeFoto!.readAsBytes();
+        final ref = FirebaseStorage.instance.ref().child(
+          'apparaat_fotos/${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+        await ref.putData(bytes);
+        final downloadUrl = await ref.getDownloadURL();
+
+        final nieuwApparaat = Apparaat(
+          id: '123',
+          naam: _naam,
+          beschrijving: _beschrijving,
+          imageUrl: downloadUrl, // Gebruik de URL van de geüploade foto
+          eigenaar: FirebaseAuth
+              .instance
+              .currentUser!
+              .uid, // Zorg dat je de eigenaar opslaat, zodat je later jouw apparaten kunt filteren
+          eigenaarNaam:
+              FirebaseAuth.instance.currentUser!.displayName ?? 'Onbekend',
+          prijsPerDag: _prijs,
+          categorie: _geselecteerdeCategorie!,
+          locatie: nieuweLocatie,
+        );
+
         await DatabaseService().voegApparaatToe(nieuwApparaat);
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +97,6 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
         setState(() {
           _geselecteerdeFoto = null;
         });
-
       } catch (e) {
         ScaffoldMessenger.of(
           context,
