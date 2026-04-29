@@ -280,7 +280,7 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                       ),
 
                       const SizedBox(height: 16),
-
+  
                       // NIEUW 3: FOTO PREVIEW & KNOP
                       Row(
                         children: [
