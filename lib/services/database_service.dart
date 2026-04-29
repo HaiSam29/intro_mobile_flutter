@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intro_mobile_flutter/apparaat.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:intro_mobile_flutter/entities/gebruiker.dart';
 
 class DatabaseService {
   // Een vaste referentie naar Firestore
@@ -36,6 +37,27 @@ class DatabaseService {
     if (docSnap.exists) {
       final data = docSnap.data() as Map<String, dynamic>?;
       return data?['adres'] as String?;
+    }
+
+    // 3. Als er niks is gevonden, geef leeg (null) terug
+    return null;
+  }
+
+  Future<void> updateGebruiker(Gebruiker gebruiker) async {
+    await _db.collection('users').doc(gebruiker.uid).set({
+      'naam': gebruiker.naam,
+      'email': gebruiker.email,
+      'adres': gebruiker.adres,
+    }, SetOptions(merge: true));
+  }
+
+  Future<Gebruiker?> haalGebruikerGegevensOp(String uid) async {
+    DocumentSnapshot docSnap = await _db.collection('users').doc(uid).get();
+
+    // 2. Controleer of het document bestaat en of het veld 'adres' erin zit
+    if (docSnap.exists) {
+      final data = docSnap.data() as Map<String, dynamic>;
+      return Gebruiker.fromMap(uid, data);
     }
 
     // 3. Als er niks is gevonden, geef leeg (null) terug

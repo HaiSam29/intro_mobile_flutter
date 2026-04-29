@@ -47,7 +47,7 @@ class _SignupSchermState extends State<SignupScherm> {
         uid: user.uid,
         naam: _naamController.text.trim(),
         email: _emailController.text.trim(),
-        adres: "Teststraat 123, Antwerpen", // Hier zou je een veld kunnen toevoegen in het formulier om dit in te vullen
+        adres: null, // Hier zou je een veld kunnen toevoegen in het formulier om dit in te vullen
       );
       if (!mounted) return;
       Navigator.pushReplacement(
