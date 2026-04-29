@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intro_mobile_flutter/apparaat.dart';
+import 'package:intro_mobile_flutter/details.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
 
 // Dit is een StatelessWidget, want de lijst zelf heeft (nu nog) geen interne state nodig
@@ -110,9 +111,19 @@ class _ZoekSchermState extends State<ZoekScherm> {
                       horizontal: 10,
                       vertical: 5,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Row(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DetailsScherm(apparaat: apparaat),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ClipRRect(
@@ -130,7 +141,7 @@ class _ZoekSchermState extends State<ZoekScherm> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${apparaat.naam} (${apparaat.eigenaar})',
+                                  '${apparaat.naam} (${apparaat.eigenaarNaam})',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -149,6 +160,7 @@ class _ZoekSchermState extends State<ZoekScherm> {
                             ),
                           ),
                         ],
+                      ),
                       ),
                     ),
                   );

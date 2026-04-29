@@ -68,9 +68,8 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
   void _opslaan() async {
     if (_geselecteerdeFoto == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Kies a.u.b eert een foto!")),
+        const SnackBar(content: Text("Kies a.u.b eerst een foto!")),
       );
-
       return;
     }
 
@@ -82,6 +81,7 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
       });
 
       try {
+        // Jouw originele manier om de foto te uploaden
         final String cloudUrl = await DatabaseService().uploadFoto(
           _geselecteerdeFoto!,
         );
@@ -93,11 +93,14 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
         );
 
         final nieuwApparaat = Apparaat(
-          id: '123',
+          id: '123', // Let op: overweeg hier een uniek ID te genereren (bijv. via uuid package)
           naam: _naam,
           beschrijving: _beschrijving,
-          imageUrl: cloudUrl,
-          eigenaar: 'Anoniem',
+          imageUrl: cloudUrl, // Gebruikt de URL van jouw upload functie
+          // De aanpassing van je vriend voor de eigenaar:
+          eigenaar: FirebaseAuth.instance.currentUser!.uid,
+          eigenaarNaam:
+              FirebaseAuth.instance.currentUser!.displayName ?? 'Onbekend',
           prijsPerDag: _prijs,
           categorie: _geselecteerdeCategorie!,
           locatie: nieuweLocatie,
@@ -108,12 +111,10 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
         String? uid = FirebaseAuth.instance.currentUser?.uid;
 
         if (uid != null && _adres != _oorspronkelijkAdres) {
-          // Alleen als ze verschillen, sturen we een update naar de database
           await DatabaseService().slaNieuwAdresOpInProfiel(uid, _adres);
         }
 
-        if (!mounted)
-          return; // Check of het scherm nog steeds zichtbaar is voordat we een SnackBar tonen
+        if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Apparaat succesvol opgeslagen!")),
@@ -125,13 +126,16 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
           _geselecteerdeFoto = null;
         });
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Er ging iets mis: $e')));
       } finally {
-        setState(() {
-          _isFotoAanHetLaden = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isFotoAanHetLaden = false;
+          });
+        }
       }
     }
   }
