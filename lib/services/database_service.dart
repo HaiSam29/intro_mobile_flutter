@@ -86,6 +86,29 @@ class DatabaseService {
     await _db.collection('apparaten').add(apparaat.toMap());
   }
 
+  Future<void> updateApparaat(Apparaat apparaat) async {
+    await _db.collection('apparaten').doc(apparaat.id).update(apparaat.toMap());
+
+    final aanvragenSnap = await _db
+        .collection('huuraanvragen')
+        .where('apparaatId', isEqualTo: apparaat.id)
+        .get();
+
+    final batch = _db.batch();
+    for (final doc in aanvragenSnap.docs) {
+      batch.update(doc.reference, {
+        'apparaatNaam': apparaat.naam,
+        'apparaatImageUrl': apparaat.imageUrl,
+        'prijsPerDag': apparaat.prijsPerDag,
+      });
+    }
+    await batch.commit();
+  }
+
+  Future<void> verwijderApparaat(String apparaatId) async {
+    await _db.collection('apparaten').doc(apparaatId).delete();
+  }
+
   // --- Jouw uploadFoto functie ---
   Future<String> uploadFoto(XFile foto) async {
     String uniekeNaam =
@@ -101,7 +124,6 @@ class DatabaseService {
     String downloadUrl = await opslagPlek.getDownloadURL();
     return downloadUrl;
   }
-
 
   // --- De Huuraanvraag functies van je vriend ---
   Future<void> voegHuuraanvraagToe(Huuraanvraag aanvraag) async {
