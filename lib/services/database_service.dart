@@ -106,7 +106,24 @@ class DatabaseService {
   }
 
   Future<void> verwijderApparaat(String apparaatId) async {
-    await _db.collection('apparaten').doc(apparaatId).delete();
+    final aanvragenSnap = await _db
+        .collection('huuraanvragen')
+        .where('apparaatId', isEqualTo: apparaatId)
+        .where(
+          'status',
+          whereIn: [
+            HuurStatus.in_behandeling.name,
+            HuurStatus.geaccepteerd.name,
+          ],
+        )
+        .get();
+
+    final batch = _db.batch();
+    for (final doc in aanvragenSnap.docs) {
+      batch.delete(doc.reference);
+    }
+    batch.delete(_db.collection('apparaten').doc(apparaatId));
+    await batch.commit();
   }
 
   // --- Jouw uploadFoto functie ---
