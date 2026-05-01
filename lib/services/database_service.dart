@@ -167,6 +167,7 @@ class DatabaseService {
         });
   }
 
+  // Status veranderen (Accepteren/Weigeren)
   Future<void> updateHuurStatus(
     String aanvraagId,
     HuurStatus nieuweStatus,
@@ -174,5 +175,28 @@ class DatabaseService {
     await _db.collection('huuraanvragen').doc(aanvraagId).update({
       'status': nieuweStatus.name,
     });
+
+    if (nieuweStatus == HuurStatus.geaccepteerd) {
+      final doc = await _db.collection('huuraanvragen').doc(aanvraagId).get();
+      if (!doc.exists) return;
+      final geaccepteerd = Huuraanvraag.fromFirestore(doc.id, doc.data()!);
+
+      final overlappend = await _db
+          .collection('huuraanvragen')
+          .where('apparaatId', isEqualTo: geaccepteerd.apparaatId)
+          .where('status', isEqualTo: HuurStatus.in_behandeling.name)
+          .get();
+
+      for (final ander in overlappend.docs) {
+        if (ander.id == aanvraagId) continue;
+        final aanvraag = Huuraanvraag.fromFirestore(ander.id, ander.data());
+        final heeftOverlap =
+            !aanvraag.startDatum.isAfter(geaccepteerd.eindDatum) &&
+            !aanvraag.eindDatum.isBefore(geaccepteerd.startDatum);
+        if (heeftOverlap) {
+          await ander.reference.update({'status': HuurStatus.geweigerd.name});
+        }
+      }
+    }
   }
 }
