@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'; // NIEUW: Import voor Google Maps
 import 'package:intro_mobile_flutter/apparaat.dart';
 import 'package:intro_mobile_flutter/huuraanvraag.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
@@ -13,6 +14,9 @@ class DetailsScherm extends StatelessWidget {
   Widget build(BuildContext context) {
     final huidigeUid = FirebaseAuth.instance.currentUser?.uid;
     final isEigenaar = huidigeUid == apparaat.eigenaar;
+    
+    // NIEUW: Haal de opgeslagen coördinaten van het apparaat op
+    final apparaatLocatie = LatLng(apparaat.locatie.latitude, apparaat.locatie.longitude);
 
     return Scaffold(
       appBar: AppBar(title: Text(apparaat.naam)),
@@ -92,6 +96,39 @@ class DetailsScherm extends StatelessWidget {
                 Text('Eigenaar: ${apparaat.eigenaarNaam}'),
               ],
             ),
+
+            const Divider(height: 32),
+
+            // NIEUW: De Google Map widget in het detailscherm
+            const Text(
+              'Ophaallocatie',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (apparaat.locatie.latitude != 0.0)
+              SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: apparaatLocatie,
+                      zoom: 14,
+                    ),
+                    markers: {
+                      Marker(
+                        markerId: MarkerId(apparaat.id),
+                        position: apparaatLocatie,
+                      ),
+                    },
+                    myLocationButtonEnabled: false,
+                    mapToolbarEnabled: false,
+                  ),
+                ),
+              )
+            else
+              const Text('Geen exacte locatie beschikbaar voor dit apparaat.', style: TextStyle(color: Colors.grey)),
 
             const Divider(height: 32),
 

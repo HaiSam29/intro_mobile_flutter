@@ -1,6 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:intro_mobile_flutter/apparaat.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
 
@@ -13,21 +17,35 @@ class ToevoegenScherm extends StatefulWidget {
 
 class _ToevoegenSchermState extends State<ToevoegenScherm> {
   final _formKey = GlobalKey<FormState>();
+  final String _apiKey = 'AIzaSyD-UXMLZF7E41-t-TXdT5g-wU1CEnGsYDM';
 
   String _naam = '';
   String _beschrijving = '';
   double _prijs = 0.0;
   Categorie? _geselecteerdeCategorie;
-  String _adres = '';
+
+  final _adresController = TextEditingController();
+
   XFile? _geselecteerdeFoto;
   bool _isFotoAanHetLaden = false;
 
   String _oorspronkelijkAdres = '';
   bool _isSchermAanHetLaden = true;
 
-  initState() {
+  LatLng _gekozenLocatie = const LatLng(50.8503, 4.3517);
+  GoogleMapController? _mapController;
+  bool _isLocatieAanHetOphalen = false;
+
+  @override
+  void initState() {
     super.initState();
     _laadAdresGebruiker();
+  }
+
+  @override
+  void dispose() {
+    _adresController.dispose();
+    super.dispose();
   }
 
   Future<void> _laadAdresGebruiker() async {
@@ -40,9 +58,14 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
 
       setState(() {
         _oorspronkelijkAdres = opgevraagdAdres ?? '';
-        _adres = _oorspronkelijkAdres;
+        _adresController.text = _oorspronkelijkAdres;
         _isSchermAanHetLaden = false;
       });
+
+      // NIEUW 1: Update de kaart direct als de gebruiker al een adres in zijn profiel had
+      if (_oorspronkelijkAdres.isNotEmpty) {
+        _updateKaartVanafAdres(_oorspronkelijkAdres);
+      }
     } else {
       setState(() {
         _isSchermAanHetLaden = false;
@@ -50,15 +73,98 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
     }
   }
 
-  // De functie om de galerij te openen en een foto te kiezen
+  // NIEUW 2: Deze functie zoekt de coördinaten op basis van tekst en verplaatst de kaart
+
+  Future<void> _updateKaartVanafAdres(String ingetyptAdres) async {
+    if (ingetyptAdres.isEmpty) return;
+    try {
+      final url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/geocode/json?address=${Uri.encodeComponent(ingetyptAdres)}&key=$_apiKey',
+      );
+      final response = await http.get(url);
+      final data = json.decode(response.body);
+
+      if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+        final loc = data['results'][0]['geometry']['location'];
+        LatLng nieuwePositie = LatLng(loc['lat'], loc['lng']);
+
+        setState(() {
+          _gekozenLocatie = nieuwePositie;
+        });
+        _mapController?.animateCamera(CameraUpdate.newLatLng(nieuwePositie));
+      } else {
+        print("Adres niet gevonden: ${data['status']}");
+      }
+    } catch (e) {
+      print("Geocoding HTTP fout: $e");
+    }
+  }
+
+  Future<void> _updateAdresVanafKaart(LatLng positie) async {
+    try {
+      final url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${positie.latitude},${positie.longitude}&key=$_apiKey',
+      );
+      final response = await http.get(url);
+      final data = json.decode(response.body);
+
+      if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+        setState(() {
+          _adresController.text = data['results'][0]['formatted_address'];
+        });
+      } else {
+        print("Coördinaten niet gevonden: ${data['status']}");
+      }
+    } catch (e) {
+      print("Reverse geocoding HTTP fout: $e");
+    }
+  }
+
+  Future<void> _gebruikHuidigeLocatie() async {
+    setState(() {
+      _isLocatieAanHetOphalen = true;
+    });
+    try {
+      bool serviceAan = await Geolocator.isLocationServiceEnabled();
+      if (!serviceAan) throw 'Locatieservice staat uit';
+
+      LocationPermission permissie = await Geolocator.checkPermission();
+      if (permissie == LocationPermission.denied) {
+        permissie = await Geolocator.requestPermission();
+      }
+      if (permissie == LocationPermission.denied ||
+          permissie == LocationPermission.deniedForever) {
+        throw 'Geen toestemming voor locatie';
+      }
+
+      Position positie = await Geolocator.getCurrentPosition();
+      LatLng nieuwePositie = LatLng(positie.latitude, positie.longitude);
+
+      setState(() {
+        _gekozenLocatie = nieuwePositie;
+      });
+
+      _mapController?.animateCamera(CameraUpdate.newLatLng(nieuwePositie));
+      await _updateAdresVanafKaart(nieuwePositie);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kon locatie niet ophalen: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLocatieAanHetOphalen = false;
+        });
+      }
+    }
+  }
+
   Future<void> _kiesFoto() async {
     final picker = ImagePicker();
-
-    // Vraag de telefoon om de galerij te openen
     final gekozenBestand = await picker.pickImage(source: ImageSource.gallery);
 
     if (gekozenBestand != null) {
-      // Als de gebruiker een foto kiest, sla deze op en herlaad de UI
       setState(() {
         _geselecteerdeFoto = gekozenBestand;
       });
@@ -81,23 +187,21 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
       });
 
       try {
-        // Jouw originele manier om de foto te uploaden
         final String cloudUrl = await DatabaseService().uploadFoto(
           _geselecteerdeFoto!,
         );
 
         Locatie nieuweLocatie = Locatie(
-          latitude: 0.0,
-          longitude: 0.0,
-          adres: _adres,
+          latitude: _gekozenLocatie.latitude,
+          longitude: _gekozenLocatie.longitude,
+          adres: _adresController.text,
         );
 
         final nieuwApparaat = Apparaat(
-          id: '123', // Let op: overweeg hier een uniek ID te genereren (bijv. via uuid package)
+          id: '123',
           naam: _naam,
           beschrijving: _beschrijving,
-          imageUrl: cloudUrl, // Gebruikt de URL van jouw upload functie
-          // De aanpassing van je vriend voor de eigenaar:
+          imageUrl: cloudUrl,
           eigenaar: FirebaseAuth.instance.currentUser!.uid,
           eigenaarNaam:
               FirebaseAuth.instance.currentUser!.displayName ?? 'Onbekend',
@@ -110,8 +214,11 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
 
         String? uid = FirebaseAuth.instance.currentUser?.uid;
 
-        if (uid != null && _adres != _oorspronkelijkAdres) {
-          await DatabaseService().slaNieuwAdresOpInProfiel(uid, _adres);
+        if (uid != null && _adresController.text != _oorspronkelijkAdres) {
+          await DatabaseService().slaNieuwAdresOpInProfiel(
+            uid,
+            _adresController.text,
+          );
         }
 
         if (!mounted) return;
@@ -121,9 +228,11 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
         );
 
         _formKey.currentState!.reset();
+        _adresController.text = '';
 
         setState(() {
           _geselecteerdeFoto = null;
+          _gekozenLocatie = const LatLng(50.8503, 4.3517);
         });
       } catch (e) {
         if (!mounted) return;
@@ -153,76 +262,48 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // VELD 1: NAAM
                       TextFormField(
                         decoration: const InputDecoration(
                           labelText: 'Naam van het apparaat',
                         ),
-                        // Dit is jouw Validators.required
                         validator: (ingevuldeTekst) {
-                          if (ingevuldeTekst == null ||
-                              ingevuldeTekst.isEmpty) {
-                            return 'Vul a.u.b. een naam in'; // Rode foutmelding
-                          }
-                          return null; // Null betekent: Geen fouten, alles is geldig!
+                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty)
+                            return 'Vul a.u.b. een naam in';
+                          return null;
                         },
-                        // sla de waarde van dit veld op in de _naam variabele zodra .save() wordt aangeroepen
-                        onSaved: (waarde) {
-                          _naam = waarde!;
-                        },
+                        onSaved: (waarde) => _naam = waarde!,
                       ),
-
-                      const SizedBox(height: 16), // Ruimte tussen de velden
-                      // VELD 2: BESCHRIJVING
+                      const SizedBox(height: 16),
                       TextFormField(
                         decoration: const InputDecoration(
                           labelText: 'Beschrijving',
                         ),
-                        maxLines: 3, // Maakt er een <textarea> van
-
+                        maxLines: 3,
                         validator: (ingevuldeTekst) {
                           if (ingevuldeTekst == null ||
-                              ingevuldeTekst.length < 10) {
+                              ingevuldeTekst.length < 10)
                             return 'De beschrijving moet minimaal 10 tekens zijn';
-                          }
                           return null;
                         },
-                        onSaved: (waarde) {
-                          _beschrijving = waarde!;
-                        },
+                        onSaved: (waarde) => _beschrijving = waarde!,
                       ),
-
                       const SizedBox(height: 16),
-
-                      // VELD 3: PRIJS
                       TextFormField(
                         decoration: const InputDecoration(
                           labelText: 'Prijs per dag (€)',
-                          prefixText: '€ ', // voor een mooi euroteken
+                          prefixText: '€ ',
                         ),
-                        keyboardType: TextInputType
-                            .number, // zorgt ervoor dat op mobiel een numeriek toetsenbord verschijnt
-
+                        keyboardType: TextInputType.number,
                         validator: (ingevuldeTekst) {
-                          if (ingevuldeTekst == null ||
-                              ingevuldeTekst.isEmpty) {
+                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty)
                             return 'Vul een prijs in';
-                          }
-                          // Check of het wel echt een getal is (geen letters getypt)
-                          if (double.tryParse(ingevuldeTekst) == null) {
+                          if (double.tryParse(ingevuldeTekst) == null)
                             return 'Vul een geldig getal in (bijv. 12.50)';
-                          }
                           return null;
                         },
-                        onSaved: (waarde) {
-                          // Zet de String ("12.50") om naar een double (12.5)
-                          _prijs = double.parse(waarde!);
-                        },
+                        onSaved: (waarde) => _prijs = double.parse(waarde!),
                       ),
-
                       const SizedBox(height: 16),
-
-                      // VELD 4: CATEGORIE
                       DropdownButtonFormField<Categorie>(
                         decoration: const InputDecoration(
                           labelText: 'Categorie',
@@ -245,46 +326,91 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                             child: Text('Schoonmaak'),
                           ),
                         ],
-                        // onChanged is verplicht, maar doet hier niks omdat onSaved het werk doet
                         onChanged: (waarde) {},
-
                         validator: (waarde) {
                           if (waarde == null) return 'Kies een categorie';
                           return null;
                         },
-                        onSaved: (waarde) {
-                          _geselecteerdeCategorie = waarde;
-                        },
+                        onSaved: (waarde) => _geselecteerdeCategorie = waarde,
                       ),
-
                       const SizedBox(height: 16),
-
-                      // --- VELD 5: LOCATIE (SIMPEL) ---
                       TextFormField(
-                        initialValue: _adres,
+                        controller: _adresController,
                         decoration: const InputDecoration(
                           labelText: 'Adres (Straat en Woonplaats)',
                           prefixIcon: Icon(Icons.location_on),
                         ),
-
+                        // NIEUW 3: Dit triggert _updateKaartVanafAdres zodra je op Enter drukt in het toetsenbord
+                        onFieldSubmitted: (waarde) {
+                          _updateKaartVanafAdres(waarde);
+                        },
                         validator: (ingevuldeTekst) {
-                          if (ingevuldeTekst == null ||
-                              ingevuldeTekst.isEmpty) {
+                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty)
                             return 'Vul a.u.b. een adres in';
-                          }
                           return null;
                         },
-                        onSaved: (waarde) {
-                          _adres = waarde!;
-                        },
                       ),
-
                       const SizedBox(height: 16),
-  
-                      // NIEUW 3: FOTO PREVIEW & KNOP
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Locatie op de kaart',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 250,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: GoogleMap(
+                            initialCameraPosition: CameraPosition(
+                              target: _gekozenLocatie,
+                              zoom: 14,
+                            ),
+                            onMapCreated: (controller) =>
+                                _mapController = controller,
+                            markers: {
+                              Marker(
+                                markerId: const MarkerId('gekozen'),
+                                position: _gekozenLocatie,
+                                draggable: true,
+                                onDragEnd: (nieuwePositie) async {
+                                  setState(() {
+                                    _gekozenLocatie = nieuwePositie;
+                                  });
+                                  await _updateAdresVanafKaart(nieuwePositie);
+                                },
+                              ),
+                            },
+                            onTap: (positie) async {
+                              setState(() {
+                                _gekozenLocatie = positie;
+                              });
+                              await _updateAdresVanafKaart(positie);
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: _isLocatieAanHetOphalen
+                            ? null
+                            : _gebruikHuidigeLocatie,
+                        icon: _isLocatieAanHetOphalen
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.my_location),
+                        label: const Text('Gebruik mijn huidige locatie'),
+                      ),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
-                          // Het preview doosje
                           Container(
                             width: 100,
                             height: 100,
@@ -292,12 +418,9 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            // Als _geselecteerdeFoto leeg is tonen we tekst, anders de Image
                             child: _geselecteerdeFoto != null
                                 ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                      8,
-                                    ), // Maakt de foto ook rond
+                                    borderRadius: BorderRadius.circular(8),
                                     child: Image.network(
                                       _geselecteerdeFoto!.path,
                                       fit: BoxFit.cover,
@@ -305,28 +428,21 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                                   )
                                 : const Center(child: Text('Geen foto')),
                           ),
-
                           const SizedBox(width: 16),
-
-                          // De knop om de galerij te openen
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: _kiesFoto, // Koppel de functie!
+                              onPressed: _kiesFoto,
                               icon: const Icon(Icons.image),
                               label: const Text('Kies een foto'),
                             ),
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 32),
-
-                      // --- DE VERZEND KNOP ---
                       _isFotoAanHetLaden
-                          ? const CircularProgressIndicator() // Laat een laad-icoon zien terwijl de foto aan het uploaden is
+                          ? const CircularProgressIndicator()
                           : ElevatedButton(
-                              onPressed:
-                                  _opslaan, // Koppel de opslaan-functie aan de klik
+                              onPressed: _opslaan,
                               child: const Text('Opslaan'),
                             ),
                     ],
