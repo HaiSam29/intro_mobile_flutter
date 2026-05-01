@@ -31,7 +31,8 @@ class ProfielScherm extends StatelessWidget {
               CircleAvatar(
                 radius: 40,
                 backgroundImage: NetworkImage(
-                  "https://www.gravatar.com/avatar/${FirebaseAuth.instance.currentUser!.email}?d=identicon",
+                  FirebaseAuth.instance.currentUser!.photoURL ??
+                      "https://www.gravatar.com/avatar/${FirebaseAuth.instance.currentUser!.email}?d=identicon",
                 ),
               ),
               const SizedBox(width: 16),

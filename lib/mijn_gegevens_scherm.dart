@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intro_mobile_flutter/entities/gebruiker.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
 
@@ -14,10 +16,22 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
   final adresController = TextEditingController();
   final naamController = TextEditingController();
   final emailController = TextEditingController();
+  XFile? _geselecteerdeFoto;
 
   initState() {
     super.initState();
     _laadAdresGebruiker();
+  }
+
+  Future<void> _kiesFoto() async {
+    final picker = ImagePicker();
+    final gekozenBestand = await picker.pickImage(source: ImageSource.gallery);
+
+    if (gekozenBestand != null) {
+      setState(() {
+        _geselecteerdeFoto = XFile(gekozenBestand.path);
+      });
+    }
   }
 
   Future<void> _laadAdresGebruiker() async {
@@ -51,6 +65,16 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
     final navigator = Navigator.of(context);
 
     try {
+      if (_geselecteerdeFoto != null) {
+        final bytes = await _geselecteerdeFoto!.readAsBytes();
+        final ref = FirebaseStorage.instance.ref().child(
+          'profiel_fotos/$uid.jpg',
+        );
+        await ref.putData(bytes);
+        final downloadUrl = await ref.getDownloadURL();
+        await FirebaseAuth.instance.currentUser!.updatePhotoURL(downloadUrl);
+      }
+
       await DatabaseService().updateGebruiker(gewijzigdeGebruiker);
 
       if (!mounted) return;
@@ -71,6 +95,17 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
   Widget build(BuildContext context) {
     final gebruiker = FirebaseAuth.instance.currentUser;
 
+    ImageProvider avatarImage;
+    if (_geselecteerdeFoto != null) {
+      avatarImage = NetworkImage(_geselecteerdeFoto!.path);
+    } else if (gebruiker?.photoURL != null) {
+      avatarImage = NetworkImage(gebruiker!.photoURL!);
+    } else {
+      avatarImage = NetworkImage(
+        "https://www.gravatar.com/avatar/${gebruiker?.email}?d=identicon",
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Mijn gegevens')),
       body: Padding(
@@ -78,15 +113,13 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
         child: Column(
           children: [
             Center(
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage(
-                  "https://www.gravatar.com/avatar/${gebruiker?.email}?d=identicon",
-                ),
-              ),
+              child: CircleAvatar(radius: 50, backgroundImage: avatarImage),
             ),
             const SizedBox(height: 8),
-            TextButton(onPressed: () {}, child: const Text('Foto wijzigen')),
+            TextButton(
+              onPressed: _kiesFoto,
+              child: const Text('Foto wijzigen'),
+            ),
             const SizedBox(height: 16),
             TextFormField(
               controller: naamController,
