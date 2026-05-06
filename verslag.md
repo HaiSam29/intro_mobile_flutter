@@ -1,6 +1,6 @@
 # Verslag BuurShare
 
-In dit verslag leggen wij twee features uit die we heb toegevoegd aan de BuurShare app:
+In dit verslag leggen wij twee features uit die we hebben toegevoegd aan de BuurShare app:
 
 1. Google Maps feature
 2. Mijn Toestellen feature (wijzigen en verwijderen)
@@ -9,7 +9,7 @@ In dit verslag leggen wij twee features uit die we heb toegevoegd aan de BuurSha
 
 ## 1. Google Maps feature
 
-We heb Google Maps in de app gezet zodat gebruikers kunnen zien waar een apparaat zich bevindt en zodat ze kunnen filteren op afstand.
+We hebben Google Maps in de app gezet zodat gebruikers kunnen zien waar een apparaat zich bevindt en zodat ze kunnen filteren op afstand.
 
 ### Wat doet het?
 
@@ -19,14 +19,17 @@ We heb Google Maps in de app gezet zodat gebruikers kunnen zien waar een apparaa
 
 ### Screenshots
 
-> **Screenshot 1:** Toevoegen scherm met de kaart waarop je een locatie kan kiezen
-> ![alt text](image.png)
+**Screenshot 1:** Toevoegen scherm met de kaart waarop je een locatie kan kiezen
 
-> **Screenshot 2:** Zoekscherm met de kaart en de afstand-slider
-> ![alt text](image-1.png)
+![Toevoegen scherm met kaart](screenshots/image.png)
 
-> **Screenshot 3:** Wijzigen scherm waar je de locatie van een bestaand apparaat aanpast
-> ![alt text](image-2.png)
+**Screenshot 2:** Zoekscherm met de kaart en de afstand-slider
+
+![Zoekscherm met kaart en slider](screenshots/image-1.png)
+
+**Screenshot 3:** Wijzigen scherm waar je de locatie van een bestaand apparaat aanpast
+
+![Wijzigen scherm met kaart](screenshots/image-2.png)
 
 ---
 
@@ -43,11 +46,14 @@ In het scherm "Mijn Toestellen" kan een gebruiker zijn eigen apparaten beheren. 
 
 ### Screenshots
 
-> **Screenshot 4:** Mijn Toestellen scherm met de lijst van eigen apparaten en de knoppen Wijzigen/Verwijderen
-> ![alt text](image-3.png)
+**Screenshot 4:** Mijn Toestellen scherm met de lijst van eigen apparaten en de knoppen Wijzigen/Verwijderen
 
-> **Screenshot 5:** Wijzigen scherm met ingevulde gegevens
-> ![alt text](image-4.png)
+![Mijn Toestellen scherm](screenshots/image-3.png)
 
-> **Screenshot 6:** Bevestigings-dialog voor het verwijderen van een apparaat
-> ![alt text](image-5.png)
+**Screenshot 5:** Wijzigen scherm met ingevulde gegevens
+
+![Wijzigen scherm](screenshots/image-4.png)
+
+**Screenshot 6:** Bevestigings-dialog voor het verwijderen van een apparaat
+
+![Verwijder bevestiging](screenshots/image-5.png)
