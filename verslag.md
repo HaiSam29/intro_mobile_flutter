@@ -1,6 +1,6 @@
 # Verslag BuurShare
 
-In dit verslag leg ik twee features uit die ik heb toegevoegd aan de BuurShare app:
+In dit verslag leggen wij twee features uit die we heb toegevoegd aan de BuurShare app:
 
 1. Google Maps feature
 2. Mijn Toestellen feature (wijzigen en verwijderen)
