@@ -378,7 +378,9 @@ class _WijzigenSchermState extends State<WijzigenScherm> {
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ClipRRect(

@@ -14,29 +14,15 @@ class DashboardScherm extends StatelessWidget {
       length: 2,
       child: Column(
         children: [
-          const SizedBox(height: 16),
-
-          // Titel van het scherm
-          const Center(
-            child: Text(
-              'Mijn Dashboard',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Material(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: const TabBar(
+              tabs: [
+                Tab(text: 'Ik huur'),
+                Tab(text: 'Ik verhuur'),
+              ],
             ),
           ),
-
-          const SizedBox(height: 16),
-
-          // De 2 tabbladen
-          const TabBar(
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.black,
-            tabs: [
-              Tab(text: 'Ik huur'),
-              Tab(text: 'Ik verhuur'),
-            ],
-          ),
-
           // De inhoud per tabblad
           Expanded(
             child: TabBarView(
@@ -47,6 +33,81 @@ class DashboardScherm extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LegeStaat extends StatelessWidget {
+  final IconData icoon;
+  final String tekst;
+  const _LegeStaat({required this.icoon, required this.tekst});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        children: [
+          Icon(icoon, color: cs.onSurfaceVariant, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            tekst,
+            style: TextStyle(color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final HuurStatus status;
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    late Color bg;
+    late Color fg;
+    late String tekst;
+    switch (status) {
+      case HuurStatus.in_behandeling:
+        bg = Colors.orange.shade100;
+        fg = Colors.orange.shade900;
+        tekst = 'In behandeling';
+        break;
+      case HuurStatus.geaccepteerd:
+      case HuurStatus.lopend:
+        bg = Colors.green.shade100;
+        fg = Colors.green.shade900;
+        tekst = status == HuurStatus.lopend ? 'Lopend' : 'Geaccepteerd';
+        break;
+      case HuurStatus.geweigerd:
+        bg = cs.errorContainer;
+        fg = cs.onErrorContainer;
+        tekst = 'Geweigerd';
+        break;
+      case HuurStatus.afgerond:
+        bg = cs.surfaceContainerHighest;
+        fg = cs.onSurfaceVariant;
+        tekst = 'Afgerond';
+        break;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        tekst,
+        style: TextStyle(
+          color: fg,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -122,13 +183,13 @@ class _IkHuurTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Mijn huur aanvragen',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
                 if (aanvragen.isEmpty)
-                  const Text('Geen aanvragen.')
+                  const _LegeStaat(icoon: Icons.inbox_outlined, tekst: 'Geen aanvragen.')
                 else
                   ...aanvragen.map(
                     (a) => _HuurKaart(aanvraag: a, kantHuurder: true),
@@ -136,13 +197,13 @@ class _IkHuurTab extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                const Text(
+                Text(
                   'Ik huur momenteel',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
                 if (momenteel.isEmpty)
-                  const Text('Niets lopend.')
+                  const _LegeStaat(icoon: Icons.hourglass_empty, tekst: 'Niets lopend.')
                 else
                   ...momenteel.map(
                     (a) => _HuurKaart(aanvraag: a, kantHuurder: true),
@@ -150,13 +211,13 @@ class _IkHuurTab extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                const Text(
+                Text(
                   'Geschiedenis',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
                 if (geschiedenis.isEmpty)
-                  const Text('Geen geschiedenis.')
+                  const _LegeStaat(icoon: Icons.history, tekst: 'Geen geschiedenis.')
                 else
                   ...geschiedenis.map(
                     (a) => _HuurKaart(aanvraag: a, kantHuurder: true),
@@ -202,13 +263,13 @@ class _IkVerhuurTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Actieve aanvragen',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
                 if (actieveAanvragen.isEmpty)
-                  const Text('Geen actieve aanvragen.')
+                  const _LegeStaat(icoon: Icons.inbox_outlined, tekst: 'Geen actieve aanvragen.')
                 else
                   ...actieveAanvragen.map(
                     (a) => _HuurKaart(
@@ -220,13 +281,13 @@ class _IkVerhuurTab extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                const Text(
+                Text(
                   'Lopende verhuur',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
                 if (lopendeVerhuur.isEmpty)
-                  const Text('Niets lopend.')
+                  const _LegeStaat(icoon: Icons.hourglass_empty, tekst: 'Niets lopend.')
                 else
                   ...lopendeVerhuur.map(
                     (a) => _HuurKaart(aanvraag: a, kantHuurder: false),
@@ -251,44 +312,26 @@ class _HuurKaart extends StatelessWidget {
     this.toonAccepteerKnoppen = false,
   });
 
-  String _statusTekst() {
-    switch (aanvraag.status) {
-      case HuurStatus.in_behandeling:
-        return 'In behandeling';
-      case HuurStatus.geaccepteerd:
-        return 'Geaccepteerd';
-      case HuurStatus.geweigerd:
-        return 'Geweigerd';
-      case HuurStatus.lopend:
-        return 'Lopend';
-      case HuurStatus.afgerond:
-        return 'Afgerond';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final tegenpartij = kantHuurder
         ? 'Bij verhuurder ${aanvraag.verhuurderNaam}'
         : 'Huurder: ${aanvraag.huurderNaam}';
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
-        ),
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 aanvraag.apparaatImageUrl,
-                width: 70,
-                height: 70,
+                width: 80,
+                height: 80,
                 fit: BoxFit.cover,
                 webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
               ),
@@ -300,16 +343,25 @@ class _HuurKaart extends StatelessWidget {
                 children: [
                   Text(
                     '${aanvraag.apparaatNaam} ($tegenpartij)',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 14, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '${_formatDatum(aanvraag.startDatum)} - ${_formatDatum(aanvraag.eindDatum)}',
+                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    '${_formatDatum(aanvraag.startDatum)} - ${_formatDatum(aanvraag.eindDatum)}',
-                  ),
-                  Text('Status: ${_statusTekst()}'),
+                  _StatusBadge(status: aanvraag.status),
                   if (toonAccepteerKnoppen) ...[
                     const SizedBox(height: 8),
                     Row(
@@ -332,7 +384,8 @@ class _HuurKaart extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                            foregroundColor: Theme.of(context).colorScheme.onError,
                           ),
                           child: const Text('Weigeren'),
                         ),

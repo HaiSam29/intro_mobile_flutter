@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'login_scherm.dart';
 import 'profiel_scherm.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,10 +33,8 @@ class MyApp extends StatelessWidget {
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
       title: 'BuurShare',
-      theme: ThemeData(
-        primaryColor: Colors.black,
-        scaffoldBackgroundColor: Colors.white,
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
       home: const LoginScherm(),
     );
   }
@@ -67,19 +66,24 @@ class _AppShellState extends State<AppShell> {
     });
   }
 
+  static const List<String> _titels = <String>[
+    'Zoeken',
+    'Apparaat aanbieden',
+    'Mijn Dashboard',
+    'Mijn Profiel',
+  ];
+
   @override
   Widget build(BuildContext context) {
     // Scaffold is je hoofd-layout (de 'div' met vaste secties)
     return Scaffold(
+      appBar: AppBar(title: Text(_titels[_geselecteerdeIndex])),
       // Body is je <RouterOutlet> of {children}. Het toont 1 item uit de array.
       body: _schermen.elementAt(_geselecteerdeIndex),
 
       // Dit bouwt de menubalk onderaan de app
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
         currentIndex: _geselecteerdeIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'ZOEKEN'),

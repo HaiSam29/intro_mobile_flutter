@@ -251,11 +251,9 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Apparaat Aanbieden")),
-      body: _isSchermAanHetLaden
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
+    return _isSchermAanHetLaden
+        ? const Center(child: CircularProgressIndicator())
+        : Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Form(
@@ -415,7 +413,9 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                             width: 100,
                             height: 100,
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: _geselecteerdeFoto != null
@@ -449,7 +449,6 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                   ),
                 ),
               ),
-            ),
-    );
+            );
   }
 }

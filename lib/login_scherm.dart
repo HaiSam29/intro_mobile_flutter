@@ -49,15 +49,32 @@ class _LoginSchermState extends State<LoginScherm> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Inloggen')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            Icon(Icons.handshake, size: 56, color: cs.primary),
+            const SizedBox(height: 12),
+            Text(
+              'BuurShare',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: cs.primary,
+                letterSpacing: 1,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'E-mail'),
                 keyboardType: TextInputType.emailAddress,
@@ -117,8 +134,11 @@ class _LoginSchermState extends State<LoginScherm> {
                   child: const Text('Account maken'),
                 ),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
