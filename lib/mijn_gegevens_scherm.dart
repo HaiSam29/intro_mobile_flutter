@@ -75,6 +75,10 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
         await FirebaseAuth.instance.currentUser!.updatePhotoURL(downloadUrl);
       }
 
+      await FirebaseAuth.instance.currentUser!.updateDisplayName(
+        naamController.text,
+      );
+
       await DatabaseService().updateGebruiker(gewijzigdeGebruiker);
 
       if (!mounted) return;
@@ -106,43 +110,78 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
       );
     }
 
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Mijn gegevens')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            Center(
-              child: CircleAvatar(radius: 50, backgroundImage: avatarImage),
+            const SizedBox(height: 24),
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                CircleAvatar(radius: 50, backgroundImage: avatarImage),
+                Material(
+                  color: cs.primary,
+                  shape: const CircleBorder(),
+                  elevation: 2,
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: _kiesFoto,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(Icons.camera_alt, size: 18, color: cs.onPrimary),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            TextButton(
-              onPressed: _kiesFoto,
-              child: const Text('Foto wijzigen'),
+            Text(
+              'Tik op het camera-icoon om je foto te wijzigen',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: naamController,
-              decoration: const InputDecoration(labelText: 'Naam'),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'E-mail'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: adresController,
-              decoration: const InputDecoration(labelText: 'Adres'),
-              keyboardType: TextInputType.streetAddress,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _opslaan,
-                child: const Text('Opslaan'),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: naamController,
+                    decoration: const InputDecoration(
+                      labelText: 'Naam',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: emailController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      labelText: 'E-mail',
+                      prefixIcon: Icon(Icons.email),
+                      helperText: 'E-mail kan hier niet gewijzigd worden',
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: adresController,
+                    decoration: const InputDecoration(
+                      labelText: 'Adres',
+                      prefixIcon: Icon(Icons.location_on),
+                    ),
+                    keyboardType: TextInputType.streetAddress,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _opslaan,
+                      icon: const Icon(Icons.save),
+                      label: const Text('Opslaan'),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

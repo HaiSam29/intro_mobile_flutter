@@ -68,14 +68,17 @@ class _SignupSchermState extends State<SignupScherm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Account maken')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _naamController,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _naamController,
                 decoration: const InputDecoration(labelText: 'Naam'),
                 validator: (waarde) {
                   if (waarde == null || waarde.trim().isEmpty) {
@@ -128,8 +131,11 @@ class _SignupSchermState extends State<SignupScherm> {
                       : const Text('Sign up'),
                 ),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

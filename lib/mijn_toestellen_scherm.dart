@@ -62,44 +62,51 @@ class MijnToestellenScherm extends StatelessWidget {
           }
           final apparaten = snapshot.data ?? [];
           if (apparaten.isEmpty) {
-            return const Center(child: Text('Je hebt nog geen toestellen.'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.devices_other,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Je hebt nog geen toestellen.',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
             itemCount: apparaten.length,
             itemBuilder: (context, index) {
               final apparaat = apparaten[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Image.network(
-                      apparaat.imageUrl,
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
+              return Card(
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          apparaat.imageUrl,
+                          width: 90,
+                          height: 90,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
                         apparaat.naam,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
                     StreamBuilder<List<Huuraanvraag>>(
@@ -126,9 +133,12 @@ class MijnToestellenScherm extends StatelessWidget {
                         });
 
                         if (isInVerhuur) {
-                          return const Tooltip(
+                          return Tooltip(
                             message: 'Niet mogelijk tijdens lopende verhuur',
-                            child: Icon(Icons.lock, color: Colors.grey),
+                            child: Icon(
+                              Icons.lock,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                           );
                         }
 
@@ -148,7 +158,10 @@ class MijnToestellenScherm extends StatelessWidget {
                               },
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
+                              icon: Icon(
+                                Icons.delete,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                               tooltip: 'Verwijderen',
                               onPressed: () =>
                                   _verwijderApparaat(context, apparaat),
@@ -157,7 +170,8 @@ class MijnToestellenScherm extends StatelessWidget {
                         );
                       },
                     ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

@@ -55,54 +55,65 @@ class DetailsScherm extends StatelessWidget {
 
             Text(
               apparaat.naam,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
 
-            Text(
-              '€${apparaat.prijsPerDag} / dag',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '€${apparaat.prijsPerDag} / dag',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 12),
 
-            Row(
-              children: [
-                const Icon(Icons.category, size: 18),
-                const SizedBox(width: 6),
-                Text('Categorie: ${apparaat.categorie.name}'),
-              ],
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  children: [
+                    _DetailRow(
+                      icoon: Icons.category,
+                      label: 'Categorie',
+                      waarde: apparaat.categorie.name,
+                    ),
+                    const SizedBox(height: 10),
+                    _DetailRow(
+                      icoon: Icons.location_on,
+                      label: 'Adres',
+                      waarde: apparaat.locatie.adres,
+                    ),
+                    const SizedBox(height: 10),
+                    _DetailRow(
+                      icoon: Icons.person,
+                      label: 'Eigenaar',
+                      waarde: apparaat.eigenaarNaam,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 6),
-
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 18),
-                const SizedBox(width: 6),
-                Expanded(child: Text(apparaat.locatie.adres)),
-              ],
-            ),
-            const SizedBox(height: 6),
-
-            Row(
-              children: [
-                const Icon(Icons.person, size: 18),
-                const SizedBox(width: 6),
-                Text('Eigenaar: ${apparaat.eigenaarNaam}'),
-              ],
-            ),
-
-            const Divider(height: 32),
+            const SizedBox(height: 24),
 
             // NIEUW: De Google Map widget in het detailscherm
-            const Text(
+            Text(
               'Ophaallocatie',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
             if (apparaat.locatie.latitude != 0.0)
@@ -128,19 +139,64 @@ class DetailsScherm extends StatelessWidget {
                 ),
               )
             else
-              const Text('Geen exacte locatie beschikbaar voor dit apparaat.', style: TextStyle(color: Colors.grey)),
+              Text(
+                'Geen exacte locatie beschikbaar voor dit apparaat.',
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
 
-            const Divider(height: 32),
+            const SizedBox(height: 24),
 
-            const Text(
+            Text(
               'Beschrijving',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(apparaat.beschrijving),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final IconData icoon;
+  final String label;
+  final String waarde;
+  const _DetailRow({required this.icoon, required this.label, required this.waarde});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: cs.primaryContainer,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icoon, size: 18, color: cs.onPrimaryContainer),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+              ),
+              Text(
+                waarde,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

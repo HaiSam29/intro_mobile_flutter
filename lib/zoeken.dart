@@ -62,23 +62,15 @@ class _ZoekSchermState extends State<ZoekScherm> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            "Apparaat zoeken",
-            style: TextStyle(fontSize: 20, color: Colors.black),
-          ),
-        ),
-
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
           child: TextField(
             decoration: const InputDecoration(
               hintText: "Zoek een apparaat...",
               prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
             ),
             onChanged: (getypteTekst) {
               setState(() {
@@ -88,51 +80,72 @@ class _ZoekSchermState extends State<ZoekScherm> {
           ),
         ),
 
-        // NIEUW: De afstand slider (alleen zichtbaar als we je locatie weten)
-        if (_mijnLocatie != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Maximale afstand:'),
-                    Text('${_maxAfstandInKm.round()} km', style: const TextStyle(fontWeight: FontWeight.bold)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                children: [
+                  if (_mijnLocatie != null) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.tune, size: 18, color: cs.primary),
+                            const SizedBox(width: 8),
+                            const Text('Maximale afstand'),
+                          ],
+                        ),
+                        Text(
+                          '${_maxAfstandInKm.round()} km',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: cs.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Slider(
+                      value: _maxAfstandInKm,
+                      min: 1,
+                      max: 100,
+                      divisions: 99,
+                      label: '${_maxAfstandInKm.round()} km',
+                      onChanged: (nieuweWaarde) {
+                        setState(() {
+                          _maxAfstandInKm = nieuweWaarde;
+                        });
+                      },
+                    ),
                   ],
-                ),
-                Slider(
-                  value: _maxAfstandInKm,
-                  min: 1,
-                  max: 100, // Tot maximaal 100km zoeken
-                  divisions: 99,
-                  label: '${_maxAfstandInKm.round()} km',
-                  onChanged: (nieuweWaarde) {
-                    setState(() {
-                      _maxAfstandInKm = nieuweWaarde;
-                    });
-                  },
-                ),
-              ],
+                  DropdownButtonFormField<Categorie?>(
+                    initialValue: _geselecteerdeCategorie,
+                    decoration: const InputDecoration(
+                      labelText: 'Categorie',
+                      prefixIcon: Icon(Icons.category),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text('Alle')),
+                      DropdownMenuItem(value: Categorie.tuin, child: Text('Tuin')),
+                      DropdownMenuItem(value: Categorie.keuken, child: Text('Keuken')),
+                      DropdownMenuItem(value: Categorie.gereedschap, child: Text('Gereedschap')),
+                      DropdownMenuItem(value: Categorie.schoonmaak, child: Text('Schoonmaak')),
+                    ],
+                    onChanged: (nieuweWaarde) {
+                      setState(() {
+                        _geselecteerdeCategorie = nieuweWaarde;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-
-        DropdownButton<Categorie?>(
-          value: _geselecteerdeCategorie,
-          hint: const Text('Kies een categorie'),
-          items: const [
-            DropdownMenuItem(value: null, child: Text('Alle')),
-            DropdownMenuItem(value: Categorie.tuin, child: Text('Tuin')),
-            DropdownMenuItem(value: Categorie.keuken, child: Text('Keuken')),
-            DropdownMenuItem(value: Categorie.gereedschap, child: Text('Gereedschap')),
-            DropdownMenuItem(value: Categorie.schoonmaak, child: Text('Schoonmaak')),
-          ],
-          onChanged: (nieuweWaarde) {
-            setState(() {
-              _geselecteerdeCategorie = nieuweWaarde;
-            });
-          },
         ),
+        const SizedBox(height: 8),
 
         Expanded(
           child: StreamBuilder<List<Apparaat>>(
@@ -168,10 +181,23 @@ class _ZoekSchermState extends State<ZoekScherm> {
               }).toList();
 
               if (gefilterdeApparaten.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "Geen apparaten gevonden in de buurt.",
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.search_off,
+                        size: 64,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Geen apparaten gevonden in de buurt.",
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                    ],
                   ),
                 );
               }
@@ -192,7 +218,7 @@ class _ZoekSchermState extends State<ZoekScherm> {
                   }
 
                   return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    clipBehavior: Clip.antiAlias,
                     child: InkWell(
                       onTap: () {
                         Navigator.push(
@@ -203,34 +229,70 @@ class _ZoekSchermState extends State<ZoekScherm> {
                         );
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(15.0),
+                        padding: const EdgeInsets.all(12),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12),
                               child: Image.network(
                                 apparaat.imageUrl,
-                                width: 80,
-                                height: 80,
+                                width: 90,
+                                height: 90,
                                 fit: BoxFit.cover,
                               ),
                             ),
-                            const SizedBox(width: 15),
+                            const SizedBox(width: 14),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${apparaat.naam} (${apparaat.eigenaarNaam})',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    apparaat.naam,
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(weergaveAfstand), // NIEUW: Hier tonen we de echte berekende afstand!
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 2),
                                   Text(
-                                    '€${apparaat.prijsPerDag} / dag',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    'door ${apparaat.eigenaarNaam}',
+                                    style: TextStyle(
+                                      color: cs.onSurfaceVariant,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.location_on, size: 14, color: cs.onSurfaceVariant),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        weergaveAfstand,
+                                        style: TextStyle(
+                                          color: cs.onSurfaceVariant,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: cs.primaryContainer,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '€${apparaat.prijsPerDag} / dag',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: cs.onPrimaryContainer,
+                                        fontSize: 13,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
