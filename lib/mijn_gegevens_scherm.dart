@@ -75,6 +75,10 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
         await FirebaseAuth.instance.currentUser!.updatePhotoURL(downloadUrl);
       }
 
+      await FirebaseAuth.instance.currentUser!.updateDisplayName(
+        naamController.text,
+      );
+
       await DatabaseService().updateGebruiker(gewijzigdeGebruiker);
 
       if (!mounted) return;
@@ -151,9 +155,11 @@ class _MijnGegevensSchermState extends State<MijnGegevensScherm> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: emailController,
+                    readOnly: true,
                     decoration: const InputDecoration(
                       labelText: 'E-mail',
                       prefixIcon: Icon(Icons.email),
+                      helperText: 'E-mail kan hier niet gewijzigd worden',
                     ),
                     keyboardType: TextInputType.emailAddress,
                   ),
