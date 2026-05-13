@@ -5,7 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intro_mobile_flutter/apparaat.dart';
+import 'package:intro_mobile_flutter/entities/apparaat.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
 
 class ToevoegenScherm extends StatefulWidget {
@@ -52,19 +52,26 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
 
     if (uid != null) {
-      String? opgevraagdAdres = await DatabaseService().haalGebruikerAdresOp(
-        uid,
-      );
+      try {
+        String? opgevraagdAdres = await DatabaseService().haalGebruikerAdresOp(
+          uid,
+        );
 
-      setState(() {
-        _oorspronkelijkAdres = opgevraagdAdres ?? '';
-        _adresController.text = _oorspronkelijkAdres;
-        _isSchermAanHetLaden = false;
-      });
+        if (!mounted) return;
+        setState(() {
+          _oorspronkelijkAdres = opgevraagdAdres ?? '';
+          _adresController.text = _oorspronkelijkAdres;
+          _isSchermAanHetLaden = false;
+        });
 
-      // NIEUW 1: Update de kaart direct als de gebruiker al een adres in zijn profiel had
-      if (_oorspronkelijkAdres.isNotEmpty) {
-        _updateKaartVanafAdres(_oorspronkelijkAdres);
+        if (_oorspronkelijkAdres.isNotEmpty) {
+          _updateKaartVanafAdres(_oorspronkelijkAdres);
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _isSchermAanHetLaden = false;
+        });
       }
     } else {
       setState(() {
@@ -265,8 +272,9 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                           labelText: 'Naam van het apparaat',
                         ),
                         validator: (ingevuldeTekst) {
-                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty)
+                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty) {
                             return 'Vul a.u.b. een naam in';
+                          }
                           return null;
                         },
                         onSaved: (waarde) => _naam = waarde!,
@@ -279,8 +287,9 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                         maxLines: 3,
                         validator: (ingevuldeTekst) {
                           if (ingevuldeTekst == null ||
-                              ingevuldeTekst.length < 10)
+                              ingevuldeTekst.length < 10) {
                             return 'De beschrijving moet minimaal 10 tekens zijn';
+                          }
                           return null;
                         },
                         onSaved: (waarde) => _beschrijving = waarde!,
@@ -293,10 +302,12 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                         ),
                         keyboardType: TextInputType.number,
                         validator: (ingevuldeTekst) {
-                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty)
+                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty) {
                             return 'Vul een prijs in';
-                          if (double.tryParse(ingevuldeTekst) == null)
+                          }
+                          if (double.tryParse(ingevuldeTekst) == null) {
                             return 'Vul een geldig getal in (bijv. 12.50)';
+                          }
                           return null;
                         },
                         onSaved: (waarde) => _prijs = double.parse(waarde!),
@@ -343,8 +354,9 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
                           _updateKaartVanafAdres(waarde);
                         },
                         validator: (ingevuldeTekst) {
-                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty)
+                          if (ingevuldeTekst == null || ingevuldeTekst.isEmpty) {
                             return 'Vul a.u.b. een adres in';
+                          }
                           return null;
                         },
                       ),

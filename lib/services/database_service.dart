@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intro_mobile_flutter/apparaat.dart';
+import 'package:intro_mobile_flutter/entities/apparaat.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intro_mobile_flutter/entities/gebruiker.dart';
@@ -64,7 +64,7 @@ class DatabaseService {
       return snapshot.docs.map((doc) {
         return Apparaat.fromFirestore(
           doc.id,
-          doc.data() as Map<String, dynamic>,
+          doc.data(),
         );
       }).toList();
     });
@@ -129,7 +129,7 @@ class DatabaseService {
   // --- Jouw uploadFoto functie ---
   Future<String> uploadFoto(XFile foto) async {
     String uniekeNaam =
-        DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
+        '${DateTime.now().millisecondsSinceEpoch}.jpg';
 
     Reference opslagPlek = _storage
         .ref()

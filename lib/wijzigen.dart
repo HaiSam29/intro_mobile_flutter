@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intro_mobile_flutter/apparaat.dart';
+import 'package:intro_mobile_flutter/entities/apparaat.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
 
 class WijzigenScherm extends StatefulWidget {

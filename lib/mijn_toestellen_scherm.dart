@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intro_mobile_flutter/apparaat.dart';
+import 'package:intro_mobile_flutter/entities/apparaat.dart';
 import 'package:intro_mobile_flutter/huuraanvraag.dart';
 import 'package:intro_mobile_flutter/services/database_service.dart';
 import 'package:intro_mobile_flutter/wijzigen.dart';
