@@ -12,12 +12,22 @@ class ZoekScherm extends StatefulWidget {
 }
 
 class _ZoekSchermState extends State<ZoekScherm> {
+  /// De geselecteerde categorie uit de dropdown. Null betekent "alle categorieën".
   Categorie? _geselecteerdeCategorie;
+
+  /// De tekst die de gebruiker intypt in de zoekbalk. Leeg betekent geen tekstfilter.
   String _zoekTerm = '';
 
-  // NIEUW: Variabelen voor de afstand
-  double _maxAfstandInKm = 50.0; // Standaard 50 km
+  /// De maximale zoekafstand in kilometers, instelbaar via de slider in de UI.
+  /// Standaard ingesteld op 50 km. Apparaten verder dan deze waarde worden uitgefilterd.
+  double _maxAfstandInKm = 50.0;
+
+  /// De huidige GPS-positie van de gebruiker, opgehaald bij het laden van het scherm.
+  /// Null als de locatiedienst uitstaat of de toestemming geweigerd is.
   Position? _mijnLocatie;
+
+  /// Geeft aan of de app momenteel de GPS-locatie aan het ophalen is.
+  /// Zolang dit true is, wordt een laadscherm getoond.
   bool _isLocatieAanHetLaden = true;
 
   @override
@@ -26,7 +36,10 @@ class _ZoekSchermState extends State<ZoekScherm> {
     _bepaalMijnLocatie(); // Haal direct locatie op als het scherm opent
   }
 
-  // NIEUW: Functie om jouw huidige locatie op te halen
+  /// Haalt de huidige GPS-positie van de gebruiker op bij het laden van het scherm.
+  /// Vraagt locatietoestemming aan als die nog niet gegeven is.
+  /// De opgehaalde positie wordt gebruikt om de afstand tot elk apparaat te berekenen
+  /// en om het afstandsfilter (de slider) te laten werken.
   Future<void> _bepaalMijnLocatie() async {
     try {
       bool serviceAan = await Geolocator.isLocationServiceEnabled();
@@ -88,7 +101,7 @@ class _ZoekSchermState extends State<ZoekScherm> {
           ),
         ),
 
-        // NIEUW: De afstand slider (alleen zichtbaar als we je locatie weten)
+        // Slider is alleen zichtbaar als GPS beschikbaar is — anders heeft hij geen nut.
         if (_mijnLocatie != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -144,27 +157,32 @@ class _ZoekSchermState extends State<ZoekScherm> {
 
               final alleApparatenUitDb = snapshot.data ?? [];
 
+              // Pas de drie filters toe op elk apparaat. Alleen apparaten die door
+              // alle drie filters passeren worden in de lijst getoond.
               final gefilterdeApparaten = alleApparatenUitDb.where((apparaat) {
+                // Filter 1: naam moet de zoekterm bevatten (hoofdletterongevoelig)
                 final naamMatch = apparaat.naam.toLowerCase().contains(_zoekTerm.toLowerCase());
+
+                // Filter 2: categorie moet overeenkomen, of null (= toon alles)
                 final categorieMatch = _geselecteerdeCategorie == null || apparaat.categorie == _geselecteerdeCategorie;
                 
-                // NIEUW: Bereken afstand en check of het binnen de slider valt
-                bool afstandMatch = true; // Standaard waar, voor het geval we geen locatie hebben
-                
+                // Filter 3: afstand mag niet groter zijn dan de sliderwaarde.
+                // Standaard true zodat apparaten zonder GPS-coördinaten altijd getoond worden.
+                bool afstandMatch = true;
+
                 if (_mijnLocatie != null && apparaat.locatie.latitude != 0.0) {
-                  // Bereken afstand in meters
                   double afstandInMeters = Geolocator.distanceBetween(
-                    _mijnLocatie!.latitude, 
-                    _mijnLocatie!.longitude, 
-                    apparaat.locatie.latitude, 
-                    apparaat.locatie.longitude
+                    _mijnLocatie!.latitude,
+                    _mijnLocatie!.longitude,
+                    apparaat.locatie.latitude,
+                    apparaat.locatie.longitude,
                   );
-                  // Zet om naar kilometers en vergelijk met de slider
                   double afstandInKm = afstandInMeters / 1000;
                   afstandMatch = afstandInKm <= _maxAfstandInKm;
                 }
 
-                return naamMatch && categorieMatch && afstandMatch; // Alle drie moeten kloppen
+                // Apparaat is zichtbaar als het door alle drie filters passeert
+                return naamMatch && categorieMatch && afstandMatch;
               }).toList();
 
               if (gefilterdeApparaten.isEmpty) {
@@ -181,14 +199,15 @@ class _ZoekSchermState extends State<ZoekScherm> {
                 itemBuilder: (context, index) {
                   final apparaat = gefilterdeApparaten[index];
 
-                  // NIEUW: Bereken de afstand specifiek om te laten zien op het scherm
+                  // Bereken de afstand opnieuw puur voor weergave op de kaart (bijv. "4.2 km").
+                  // Dit is los van het filter hierboven.
                   String weergaveAfstand = 'Onbekend';
                   if (_mijnLocatie != null && apparaat.locatie.latitude != 0.0) {
                     double meters = Geolocator.distanceBetween(
                       _mijnLocatie!.latitude, _mijnLocatie!.longitude, 
                       apparaat.locatie.latitude, apparaat.locatie.longitude
                     );
-                    weergaveAfstand = '${(meters / 1000).toStringAsFixed(1)} km'; // Bijv: "4.2 km"
+                    weergaveAfstand = '${(meters / 1000).toStringAsFixed(1)} km';
                   }
 
                   return Card(
@@ -226,7 +245,7 @@ class _ZoekSchermState extends State<ZoekScherm> {
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(weergaveAfstand), // NIEUW: Hier tonen we de echte berekende afstand!
+                                  Text(weergaveAfstand),
                                   const SizedBox(height: 8),
                                   Text(
                                     '€${apparaat.prijsPerDag} / dag',

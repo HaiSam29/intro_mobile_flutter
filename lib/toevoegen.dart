@@ -32,8 +32,14 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
   String _oorspronkelijkAdres = '';
   bool _isSchermAanHetLaden = true;
 
+  /// De geselecteerde locatie op de kaart als breedte- en lengtegraad.
+  /// Standaard ingesteld op Brussel (50.8503, 4.3517).
   LatLng _gekozenLocatie = const LatLng(50.8503, 4.3517);
+
+  /// Controller voor de Google Map widget, gebruikt om de camera programmatisch te bewegen.
   GoogleMapController? _mapController;
+
+  /// Geeft aan of de app momenteel de GPS-locatie van het toestel aan het ophalen is.
   bool _isLocatieAanHetOphalen = false;
 
   @override
@@ -73,8 +79,10 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
     }
   }
 
-  // NIEUW 2: Deze functie zoekt de coördinaten op basis van tekst en verplaatst de kaart
-
+  /// Zet een tekstadres om naar GPS-coördinaten via de Google Geocoding API
+  /// en verplaatst de kaartcamera naar die positie.
+  ///
+  /// [ingetyptAdres] Het adres dat omgezet moet worden naar coördinaten.
   Future<void> _updateKaartVanafAdres(String ingetyptAdres) async {
     if (ingetyptAdres.isEmpty) return;
     try {
@@ -100,6 +108,10 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
     }
   }
 
+  /// Zet GPS-coördinaten om naar een leesbaar adres via de Google Reverse Geocoding API
+  /// en toont dat adres in het adresveld.
+  ///
+  /// [positie] De coördinaten (breedte- en lengtegraad) die omgezet worden naar een adres.
   Future<void> _updateAdresVanafKaart(LatLng positie) async {
     try {
       final url = Uri.parse(
@@ -120,6 +132,9 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
     }
   }
 
+  /// Haalt de huidige GPS-positie van het toestel op via de Geolocator package.
+  /// Vraagt locatietoestemming aan de gebruiker als die nog niet gegeven is.
+  /// Bij succes worden de kaart en het adresveld bijgewerkt met de huidige locatie.
   Future<void> _gebruikHuidigeLocatie() async {
     setState(() {
       _isLocatieAanHetOphalen = true;
@@ -214,6 +229,8 @@ class _ToevoegenSchermState extends State<ToevoegenScherm> {
 
         String? uid = FirebaseAuth.instance.currentUser?.uid;
 
+        // Sla het nieuwe adres op in het profiel, maar alleen als het effectief gewijzigd is
+        // om onnodige schrijfoperaties naar de database te vermijden.
         if (uid != null && _adresController.text != _oorspronkelijkAdres) {
           await DatabaseService().slaNieuwAdresOpInProfiel(
             uid,

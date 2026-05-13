@@ -30,8 +30,14 @@ class _WijzigenSchermState extends State<WijzigenScherm> {
   XFile? _nieuweFoto;
   bool _isAanHetOpslaan = false;
 
+  /// De huidige geselecteerde locatie op de kaart als breedte- en lengtegraad.
+  /// Wordt bij initialisatie ingesteld op de opgeslagen locatie van het apparaat.
   late LatLng _gekozenLocatie;
+
+  /// Controller voor de Google Map widget, gebruikt om de camera programmatisch te bewegen.
   GoogleMapController? _mapController;
+
+  /// Geeft aan of de app momenteel de GPS-locatie van het toestel aan het ophalen is.
   bool _isLocatieAanHetOphalen = false;
 
   @override
@@ -54,6 +60,10 @@ class _WijzigenSchermState extends State<WijzigenScherm> {
     super.dispose();
   }
 
+  /// Zet een tekstadres om naar GPS-coördinaten via de Google Geocoding API
+  /// en verplaatst de kaartcamera naar die positie.
+  ///
+  /// [ingetyptAdres] Het adres dat omgezet moet worden naar coördinaten.
   Future<void> _updateKaartVanafAdres(String ingetyptAdres) async {
     if (ingetyptAdres.isEmpty) return;
     try {
@@ -79,6 +89,10 @@ class _WijzigenSchermState extends State<WijzigenScherm> {
     }
   }
 
+  /// Zet GPS-coördinaten om naar een leesbaar adres via de Google Reverse Geocoding API
+  /// en toont dat adres in het adresveld.
+  ///
+  /// [positie] De coördinaten (breedte- en lengtegraad) die omgezet worden naar een adres.
   Future<void> _updateAdresVanafKaart(LatLng positie) async {
     try {
       final url = Uri.parse(
@@ -99,6 +113,9 @@ class _WijzigenSchermState extends State<WijzigenScherm> {
     }
   }
 
+  /// Haalt de huidige GPS-positie van het toestel op via de Geolocator package.
+  /// Vraagt locatietoestemming aan de gebruiker als die nog niet gegeven is.
+  /// Bij succes worden de kaart en het adresveld bijgewerkt met de huidige locatie.
   Future<void> _gebruikHuidigeLocatie() async {
     setState(() {
       _isLocatieAanHetOphalen = true;

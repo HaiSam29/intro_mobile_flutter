@@ -15,7 +15,8 @@ class DetailsScherm extends StatelessWidget {
     final huidigeUid = FirebaseAuth.instance.currentUser?.uid;
     final isEigenaar = huidigeUid == apparaat.eigenaar;
     
-    // NIEUW: Haal de opgeslagen coördinaten van het apparaat op
+    // Zet de opgeslagen GPS-coördinaten van het apparaat om naar een LatLng object
+    // voor gebruik als markerpositie en cameracentrum in de Google Map widget.
     final apparaatLocatie = LatLng(apparaat.locatie.latitude, apparaat.locatie.longitude);
 
     return Scaffold(
@@ -99,7 +100,8 @@ class DetailsScherm extends StatelessWidget {
 
             const Divider(height: 32),
 
-            // NIEUW: De Google Map widget in het detailscherm
+            // Toont de ophaallocatie van het apparaat op een ingesloten Google Map.
+            // De kaart is alleen leesbaar (geen mijn-locatie knop, geen toolbar).
             const Text(
               'Ophaallocatie',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
